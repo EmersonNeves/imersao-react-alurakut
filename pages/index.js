@@ -1,3 +1,5 @@
+import jwt_decode from "jwt-decode";
+import nookies from "nookies";
 import React, { useEffect, useState } from "react";
 import Box from "../src/components/Box";
 import MainGrid from "../src/components/MainGrid";
@@ -8,10 +10,10 @@ import {
   OrkutNostalgicIconSet,
 } from "../src/lib/AluraCommons";
 
-export default function Home() {
+export default function Home(props) {
   const [user, setUser] = useState("");
   const [communities, setCommunities] = useState([]);
-  const githubName = "EmersonNeves";
+  const githubUser = props.githubUser;
   const githubFriends = [
     "omariosouto",
     "juunegreiros",
@@ -21,12 +23,12 @@ export default function Home() {
   ];
 
   useEffect(() => {
-    fetch(`https://api.github.com/users/${githubName}`)
+    fetch(`https://api.github.com/users/${githubUser}`)
       .then((user) => {
         return user.json();
       })
-      .then((resposta) => {
-        setUser(resposta.name);
+      .then((response) => {
+        setUser(response.name);
       });
   }, []);
 
@@ -70,7 +72,7 @@ export default function Home() {
       title,
       imageUrl,
       address,
-      creatorSlug: githubName,
+      creatorSlug: githubUser,
     };
 
     fetch("/api/communities", {
@@ -82,27 +84,26 @@ export default function Home() {
     }).then(async (response) => {
       const communityCreated = await response.json();
       const currentCommunities = [...communities, communityCreated];
-  
+
       setCommunities(currentCommunities);
-  
+
       event.target.reset();
     });
-
   }
   return (
     <div>
-      <AlurakutMenu githubUser={githubName} />
+      <AlurakutMenu githubUser={githubUser} />
       <MainGrid>
         <div className="profileArea" style={{ gridArea: "profileArea" }}>
           <Box>
             <img
-              src={`https://github.com/${githubName}.png`}
+              src={`https://github.com/${githubUser}.png`}
               alt="Foto do perfil"
             />
             <hr />
             <p>
-              <a className="boxLink" href={`https://github.com/${githubName}`}>
-                @{githubName}
+              <a className="boxLink" href={`https://github.com/${githubUser}`}>
+                @{githubUser}
               </a>
             </p>
             <hr />
@@ -210,4 +211,34 @@ export default function Home() {
       </MainGrid>
     </div>
   );
+}
+
+export async function getServerSideProps(context) {
+  const token = nookies.get(context).USER_TOKEN;
+
+  const { isAuthenticated } = await fetch(
+    "http://alurakut.vercel.app/api/auth",
+    {
+      headers: {
+        Authorization: token,
+      },
+    }
+  ).then((response) => response.json());
+
+  if (!isAuthenticated) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
+
+  const { githubUser } = jwt_decode(token);
+  console.log(githubUser);
+  return {
+    props: {
+      githubUser,
+    },
+  };
 }
