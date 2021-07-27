@@ -1,7 +1,6 @@
 import { useRouter } from "next/router";
-import nookies from 'nookies';
+import nookies from "nookies";
 import React, { useState } from "react";
-
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -9,21 +8,33 @@ export default function LoginScreen() {
 
   function handleSubmit(event) {
     event.preventDefault();
-    fetch("https://alurakut.vercel.app/api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ githubUser: githubUser }),
-    }).then(async (response) => {
-      const responseData = await response.json();
-      console.log(responseData);
-      const token = responseData.token;
-      nookies.set(null, "USER_TOKEN", token, {
-        path: "/",
-        maxAge: 86400 * 7,
-      });
-      router.push("/");
+    fetch(`https://api.github.com/users/${githubUser}`).then((user) => {
+      console.log(user.status);
+      if (user.status === 403) {
+        return {
+          redirect: {
+            destination: "/login",
+            permanent: false,
+          },
+        };
+      } else {
+        fetch("https://alurakut.vercel.app/api/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ githubUser: githubUser }),
+        }).then(async (response) => {
+          const responseData = await response.json();
+          console.log(responseData);
+          const token = responseData.token;
+          nookies.set(null, "USER_TOKEN", token, {
+            path: "/",
+            maxAge: 86400 * 7,
+          });
+          router.push("/");
+        });
+      }
     });
   }
 

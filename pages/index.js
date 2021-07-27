@@ -42,7 +42,7 @@ export default function Home(props) {
       },
       body: JSON.stringify({
         query: `query {
-        allCommunities {
+        allCommunities(filter: {creatorSlug: {eq: ${githubUser}}}) {
           title 
           id
           imageUrl
@@ -233,9 +233,9 @@ export async function getServerSideProps(context) {
       },
     };
   }
-
   const { githubUser } = jwt_decode(token);
   console.log(githubUser);
+
   return {
     props: {
       githubUser,
