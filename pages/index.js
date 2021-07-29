@@ -14,13 +14,21 @@ export default function Home(props) {
   const [user, setUser] = useState("");
   const [communities, setCommunities] = useState([]);
   const githubUser = props.githubUser;
-  const githubFriends = [
-    "omariosouto",
-    "juunegreiros",
-    "marcobrunodev",
-    "filipedeschamps",
-    "diego3g",
-  ];
+  const [githubFollowers, setGithubFollowers] = useState([]);
+  const [githubFollowing, setGithubFollowing] = useState([]);
+
+
+  useEffect(() => {
+    fetch(`https://api.github.com/users/${githubUser}/following`)
+      .then((userFollow) => {
+        // console.log(userFollow.json());
+        return userFollow.json();
+      })
+      .then((response) => {  
+        console.log(response)
+        setGithubFollowing(response)
+      });
+  }, []);
 
   useEffect(() => {
     fetch(`https://api.github.com/users/${githubUser}`)
@@ -160,19 +168,30 @@ export default function Home(props) {
           style={{ gridArea: "profileRelationArea" }}
         >
           <ProfileRelationsBoxWrapper>
-            <h2 className="smallTitle">Amigos ({githubFriends.length})</h2>
+            <h2 className="smallTitle">Seguindo ({githubFollowing.length})</h2>
             <ul>
-              {githubFriends.map((friend) => (
-                <li key={friend}>
-                  <a href={`/users/${friend}`}>
-                    <img
-                      src={`https://github.com/${friend}.png`}
-                      alt={`Foto de perfil do ${friend}`}
+              {githubFollowing.slice(0,6).map((following) => ( 
+                 <li  key={following.id}>
+                   <a href={`/users/${following.login}`}>
+                   <img
+                      src={`https://github.com/${following.login}.png`}
+                      alt={`Foto de perfil do ${following}`}
                     />
-                    <span>{friend}</span>
+                    <span>{following.login}</span>
                   </a>
-                </li>
-              ))}
+                 </li>
+              )
+              )}
+              {/* <nav>
+                <ul>
+                  <li style={{display: 'flex'}}>
+                    <a style={{paddingRight: '15px'}}>1</a>
+                    <a style={{paddingRight: '15px'}}>2</a>
+                    <a style={{paddingRight: '15px'}}>3</a>
+                    <a style={{paddingRight: '15px'}}>4</a>
+                  </li>
+                </ul>
+              </nav> */}
             </ul>
           </ProfileRelationsBoxWrapper>
 
@@ -215,6 +234,14 @@ export default function Home(props) {
 
 export async function getServerSideProps(context) {
   const token = nookies.get(context).USER_TOKEN;
+
+  const meta = {
+    success: true,
+    totalCount: 12,
+    pageCount: 5,
+    currentPage: 1,
+    perPage: 6,
+  }
 
   const { isAuthenticated } = await fetch(
     "http://alurakut.vercel.app/api/auth",
