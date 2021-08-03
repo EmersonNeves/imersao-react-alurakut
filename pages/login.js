@@ -72,7 +72,7 @@ export default function LoginScreen() {
             </p>
             <input
               placeholder="Usuário"
-              value={githubUser}
+              value={githubUser.toLowerCase()}
               onChange={(event) => {
                 setGithubUser(event.target.value);
               }}

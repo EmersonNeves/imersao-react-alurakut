@@ -17,6 +17,41 @@ export default function Home(props) {
   const [githubFollowers, setGithubFollowers] = useState([]);
   const [githubFollowing, setGithubFollowing] = useState([]);
 
+  //pagination
+  const [initialValue, setInitialValue] = useState(0);
+  const [lastValue, setLastValue] = useState(6);
+  const [page, setPage] = useState(1);
+  const perPage = 6;
+  const totalPage = Math.ceil(githubFollowing.length / perPage);
+
+  function nextPage() {
+    console.log(page);
+    if (page < totalPage) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      const nextInitialValue = lastValue + 1;
+      console.log(nextInitialValue);
+      setInitialValue(nextInitialValue - 1);
+      const nextLastValue = lastValue + nextInitialValue;
+      console.log(nextLastValue);
+      setLastValue(nextLastValue - 1);
+    }
+    console.log(page);
+  }
+
+  function prevPage() {
+    if (page > 1) {
+      const prevPage = page - 1;
+      setPage(prevPage);
+      const prevInitialValue = initialValue - 6;
+      console.log('Prev', prevInitialValue + 1);
+      setInitialValue(prevInitialValue)
+      const prevLastValue = lastValue - prevInitialValue - 6;
+      console.log("Prev", prevLastValue);
+      setLastValue(prevLastValue)
+    }
+    console.log(page);
+  }
 
   useEffect(() => {
     fetch(`https://api.github.com/users/${githubUser}/following`)
@@ -24,9 +59,9 @@ export default function Home(props) {
         // console.log(userFollow.json());
         return userFollow.json();
       })
-      .then((response) => {  
-        console.log(response)
-        setGithubFollowing(response)
+      .then((response) => {
+        console.log(response);
+        setGithubFollowing(response);
       });
   }, []);
 
@@ -63,7 +98,6 @@ export default function Home(props) {
       .then((response) => response.json())
       .then((result) => {
         const communities = result.data.allCommunities;
-        console.log(communities);
         setCommunities(communities);
       });
   }, []);
@@ -80,7 +114,7 @@ export default function Home(props) {
       title,
       imageUrl,
       address,
-      creatorSlug: githubUser,
+      creatorSlug: githubUser.toLowerCase(),
     };
 
     fetch("/api/communities", {
@@ -170,29 +204,43 @@ export default function Home(props) {
           <ProfileRelationsBoxWrapper>
             <h2 className="smallTitle">Seguindo ({githubFollowing.length})</h2>
             <ul>
-              {githubFollowing.slice(0,6).map((following) => ( 
-                 <li  key={following.id}>
-                   <a href={`/users/${following.login}`}>
-                   <img
-                      src={`https://github.com/${following.login}.png`}
-                      alt={`Foto de perfil do ${following}`}
-                    />
-                    <span>{following.login}</span>
-                  </a>
-                 </li>
-              )
-              )}
-              {/* <nav>
-                <ul>
-                  <li style={{display: 'flex'}}>
-                    <a style={{paddingRight: '15px'}}>1</a>
-                    <a style={{paddingRight: '15px'}}>2</a>
-                    <a style={{paddingRight: '15px'}}>3</a>
-                    <a style={{paddingRight: '15px'}}>4</a>
+              {githubFollowing
+                .slice(initialValue, lastValue)
+                .map((following) => (
+                  <li key={following.id}>
+                    <a href={`/users/${following.login}`}>
+                      <img
+                        src={`https://github.com/${following.login}.png`}
+                        alt={`Foto de perfil do ${following}`}
+                      />
+                      <span>{following.login}</span>
+                    </a>
                   </li>
-                </ul>
-              </nav> */}
+                ))}
             </ul>
+            <nav
+              style={{
+                marginLeft: "auto",
+                marginRight: "auto",
+                paddingTop: "10px",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <a onClick={prevPage} style={{ paddingRight: "10px" }}>
+                  {"<"}
+                </a>
+                <a style={{ paddingRight: "15px", pointerEvents: "none" }}>
+                  {page}
+                </a>
+                <a onClick={nextPage}> {">"} </a>
+              </div>
+            </nav>
           </ProfileRelationsBoxWrapper>
 
           <ProfileRelationsBoxWrapper>
@@ -234,14 +282,6 @@ export default function Home(props) {
 
 export async function getServerSideProps(context) {
   const token = nookies.get(context).USER_TOKEN;
-
-  const meta = {
-    success: true,
-    totalCount: 12,
-    pageCount: 5,
-    currentPage: 1,
-    perPage: 6,
-  }
 
   const { isAuthenticated } = await fetch(
     "http://alurakut.vercel.app/api/auth",
