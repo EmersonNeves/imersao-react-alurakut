@@ -29,7 +29,6 @@ export default function Home(props) {
       const nextPage = page + 1;
       setPage(nextPage);
       const start = page  * perPage;
-      console.log('Start', start)
       const end = start + perPage;
       setInitialValue(start);
       setLastValue(end);
