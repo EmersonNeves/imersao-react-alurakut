@@ -27,26 +27,23 @@ export default function Home(props) {
   function nextPage() {
     if (page < totalPage) {
       const nextPage = page + 1;
-      console.log(nextPage)
       setPage(nextPage);
-      const start = page * perPage;
+      const start = page  * perPage;
+      console.log('Start', start)
       const end = start + perPage;
       setInitialValue(start);
       setLastValue(end);
     }
-    console.log(page);
   }
 
   function prevPage() {
     if (page > 1) {
       const prevPage = page - 1;
-      console.log(prevPage)
       setPage(prevPage);
-      console.log(page)
-      const start = page * perPage;
-      const end = start + perPage;
-      setInitialValue(start);
-      setLastValue(end);
+      const start = prevPage * perPage;
+      const end = start - perPage;
+      setInitialValue(end);
+      setLastValue(start);
     }
    
   }
