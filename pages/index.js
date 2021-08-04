@@ -25,16 +25,14 @@ export default function Home(props) {
   const totalPage = Math.ceil(githubFollowing.length / perPage);
 
   function nextPage() {
-    console.log(page);
     if (page < totalPage) {
       const nextPage = page + 1;
+      console.log(nextPage)
       setPage(nextPage);
-      const nextInitialValue = lastValue + 1;
-      console.log(nextInitialValue);
-      setInitialValue(nextInitialValue - 1);
-      const nextLastValue = lastValue + nextInitialValue;
-      console.log(nextLastValue);
-      setLastValue(nextLastValue - 1);
+      const start = page * perPage;
+      const end = start + perPage;
+      setInitialValue(start);
+      setLastValue(end);
     }
     console.log(page);
   }
@@ -42,15 +40,15 @@ export default function Home(props) {
   function prevPage() {
     if (page > 1) {
       const prevPage = page - 1;
+      console.log(prevPage)
       setPage(prevPage);
-      const prevInitialValue = initialValue - 6;
-      console.log('Prev', prevInitialValue + 1);
-      setInitialValue(prevInitialValue)
-      const prevLastValue = lastValue - prevInitialValue - 6;
-      console.log("Prev", prevLastValue);
-      setLastValue(prevLastValue)
+      console.log(page)
+      const start = page * perPage;
+      const end = start + perPage;
+      setInitialValue(start);
+      setLastValue(end);
     }
-    console.log(page);
+   
   }
 
   useEffect(() => {
