@@ -10,6 +10,9 @@ import {
   OrkutNostalgicIconSet,
 } from "../src/lib/AluraCommons";
 
+import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 export default function Home(props) {
   const [user, setUser] = useState("");
   const [communities, setCommunities] = useState([]);
@@ -28,7 +31,7 @@ export default function Home(props) {
     if (page < totalPage) {
       const nextPage = page + 1;
       setPage(nextPage);
-      const start = page  * perPage;
+      const start = page * perPage;
       const end = start + perPage;
       setInitialValue(start);
       setLastValue(end);
@@ -44,7 +47,6 @@ export default function Home(props) {
       setInitialValue(end);
       setLastValue(start);
     }
-   
   }
 
   useEffect(() => {
@@ -227,12 +229,15 @@ export default function Home(props) {
                 }}
               >
                 <a onClick={prevPage} style={{ paddingRight: "10px" }}>
-                  {"<"}
+                  <FontAwesomeIcon icon={faAngleLeft} size={"lg"}/>
                 </a>
-                <a style={{ paddingRight: "15px", pointerEvents: "none" }}>
+                <a style={{fontSize:"18px", paddingRight: "13px", pointerEvents: "none" }}>
                   {page}
                 </a>
-                <a onClick={nextPage}> {">"} </a>
+                <a onClick={nextPage}>
+                  {" "}
+                  <FontAwesomeIcon icon={faAngleRight} size={"lg"}/>
+                </a>
               </div>
             </nav>
           </ProfileRelationsBoxWrapper>
