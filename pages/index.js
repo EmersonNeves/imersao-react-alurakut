@@ -151,7 +151,7 @@ export default function Home(props) {
         <div className="welcomeArea" style={{ gridArea: "welcomeArea" }}>
           <Box>
             <h1 className="title">Bem-Vindo(a), {user}</h1>
-            <OrkutNostalgicIconSet />
+            <OrkutNostalgicIconSet key={`_key${user}`}/>
             <p style={{ paddingTop: "20px", fontWeight: "bold" }}>
               Visualizações do perfil:
             </p>

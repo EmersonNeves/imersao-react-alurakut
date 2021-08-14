@@ -26,7 +26,8 @@ export default function Profile() {
     query: { name },
   } = router;
 
-  const githubUser = name;
+
+ 
 
   function nextPage() {
     if (page < totalPage) {
@@ -52,7 +53,7 @@ export default function Profile() {
 
   
   useEffect(() => {
-    fetch(`https://api.github.com/users/${githubUser}/following`)
+    fetch(`https://api.github.com/users/${name}/following`)
       .then((userFollow) => {
         // console.log(userFollow.json());
         return userFollow.json();
@@ -64,7 +65,7 @@ export default function Profile() {
   }, []);
 
   useEffect(() => {
-    fetch(`https://api.github.com/users/${githubUser}`)
+    fetch(`https://api.github.com/users/${name}`)
       .then((user) => {
         return user.json();
       })
@@ -75,18 +76,18 @@ export default function Profile() {
 
   return (
     <div>
-      <AlurakutMenu githubUser={githubUser} />
+      <AlurakutMenu githubUser={name} />
       <MainGrid>
         <div className="profileArea" style={{ gridArea: "profileArea" }}>
           <Box>
             <img
-              src={`https://github.com/${githubUser}.png`}
+              src={`https://github.com/${name}.png`}
               alt="Foto do perfil"
             />
             <hr />
             <p>
-              <a className="boxLink" href={`https://github.com/${githubUser}`}>
-                @{githubUser}
+              <a className="boxLink" href={`https://github.com/${name}`}>
+                @{name}
               </a>
             </p>
             <hr />
@@ -96,7 +97,7 @@ export default function Profile() {
         <div className="welcomeArea" style={{ gridArea: "welcomeArea" }}>
           <Box>
             <h1 className="title">{user}</h1>
-            <OrkutNostalgicIconSet />
+            <OrkutNostalgicIconSet  key={`_${user}`}/>
             <p style={{ paddingTop: "20px", fontWeight: "bold" }}>
               Visualizações do perfil:
             </p>
@@ -105,6 +106,10 @@ export default function Profile() {
             </div>
           </Box>
         </div>
+        <div
+          className="profileRelationArea"
+          style={{ gridArea: "profileRelationArea" }}
+        >
         <ProfileRelationsBoxWrapper>
           <h2 className="smallTitle">Seguindo ({githubFollowing.length})</h2>
           <ul>
@@ -153,6 +158,7 @@ export default function Profile() {
             </div>
           </nav>
         </ProfileRelationsBoxWrapper>
+        </div>
       </MainGrid>
     </div>
   );
