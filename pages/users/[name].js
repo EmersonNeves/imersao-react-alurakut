@@ -9,25 +9,31 @@ import MainGrid from "../../src/components/MainGrid";
 import Box from "../../src/components/Box";
 import { ProfileRelationsBoxWrapper } from "../../src/components/ProfileRelations";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
+import {
+  faAngleLeft,
+  faAngleRight,
+  faUserAlt,
+} from "@fortawesome/free-solid-svg-icons";
 
 export default function Profile() {
-  const router = useRouter();
   const [user, setUser] = useState("");
   const [githubFollowing, setGithubFollowing] = useState([]);
-
+  const [githubUser, setGithubUser] = useState("");
   const [initialValue, setInitialValue] = useState(0);
   const [lastValue, setLastValue] = useState(6);
   const [page, setPage] = useState(1);
   const perPage = 6;
   const totalPage = Math.ceil(githubFollowing.length / perPage);
-  
-  const {
-    query: { name },
-  } = router;
+  const router = useRouter();
 
+  console.log(router);
 
- 
+  const gitUser = router.query.name
+
+  useEffect(() => {
+    const gitUser = router.query.name;
+    setGithubUser(gitUser);
+  }, [router]);
 
   function nextPage() {
     if (page < totalPage) {
@@ -50,116 +56,123 @@ export default function Profile() {
       setLastValue(start);
     }
   }
+  // const githubUser = query.name;
 
-  
   useEffect(() => {
-    fetch(`https://api.github.com/users/${name}/following`)
+    console.log(githubUser)
+    console.log(gitUser)
+    fetch(`https://api.github.com/users/${gitUser}/following`)
       .then((userFollow) => {
-        // console.log(userFollow.json());
         return userFollow.json();
       })
       .then((response) => {
-        console.log(response);
         setGithubFollowing(response);
       });
-  }, []);
+  }, [router]);
 
   useEffect(() => {
-    fetch(`https://api.github.com/users/${name}`)
+    fetch(`https://api.github.com/users/${githubUser}`)
       .then((user) => {
         return user.json();
       })
       .then((response) => {
         setUser(response.name);
       });
-  }, []);
+  }, [router]);
 
-  return (
-    <div>
-      <AlurakutMenu githubUser={name} />
-      <MainGrid>
-        <div className="profileArea" style={{ gridArea: "profileArea" }}>
-          <Box>
-            <img
-              src={`https://github.com/${name}.png`}
-              alt="Foto do perfil"
-            />
-            <hr />
-            <p>
-              <a className="boxLink" href={`https://github.com/${name}`}>
-                @{name}
-              </a>
-            </p>
-            <hr />
-            <AlurakutProfileSidebarMenuDefault />
-          </Box>
-        </div>
-        <div className="welcomeArea" style={{ gridArea: "welcomeArea" }}>
-          <Box>
-            <h1 className="title">{user}</h1>
-            <OrkutNostalgicIconSet  key={`_${user}`}/>
-            <p style={{ paddingTop: "20px", fontWeight: "bold" }}>
-              Visualizações do perfil:
-            </p>
-            <div style={{ color: "#5A5A5A" }}>
-              <p>Total: 0, Última semana: 0, Ontem: 0</p>
-            </div>
-          </Box>
-        </div>
-        <div
-          className="profileRelationArea"
-          style={{ gridArea: "profileRelationArea" }}
-        >
-        <ProfileRelationsBoxWrapper>
-          <h2 className="smallTitle">Seguindo ({githubFollowing.length})</h2>
-          <ul>
-            {githubFollowing.slice(initialValue, lastValue).map((following) => (
-              <li key={following.id}>
-                <a href={`/users/${following.login}`}>
-                  <img
-                    src={`https://github.com/${following.login}.png`}
-                    alt={`Foto de perfil do ${following}`}
-                  />
-                  <span>{following.login}</span>
+    return (
+      <div>
+        <AlurakutMenu githubUser={githubUser} />
+        <MainGrid>
+          <div className="profileArea" style={{ gridArea: "profileArea" }}>
+            <Box>
+              <img
+                src={`https://github.com/${githubUser}.png`}
+                alt="Foto do perfil"
+              />
+              <hr />
+              <p>
+                <a
+                  className="boxLink"
+                  href={`https://github.com/${githubUser}`}
+                >
+                  @{githubUser}
                 </a>
-              </li>
-            ))}
-          </ul>
-          <nav
-            style={{
-              marginLeft: "auto",
-              marginRight: "auto",
-              paddingTop: "10px",
-            }}
+              </p>
+              <hr />
+              <AlurakutProfileSidebarMenuDefault />
+            </Box>
+          </div>
+          <div className="welcomeArea" style={{ gridArea: "welcomeArea" }}>
+            <Box>
+              <h1 className="title">{user}</h1>
+              <OrkutNostalgicIconSet key={`_${user}`} />
+              <p style={{ paddingTop: "20px", fontWeight: "bold" }}>
+                Visualizações do perfil:
+              </p>
+              <div style={{ color: "#5A5A5A" }}>
+                <p>Total: 0, Última semana: 0, Ontem: 0</p>
+              </div>
+            </Box>
+          </div>
+          <div
+            className="profileRelationArea"
+            style={{ gridArea: "profileRelationArea" }}
           >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <a onClick={prevPage} style={{ paddingRight: "10px" }}>
-                <FontAwesomeIcon icon={faAngleLeft} size={"lg"} />
-              </a>
-              <a
+            <ProfileRelationsBoxWrapper>
+              <h2 className="smallTitle">
+                Seguindo ({githubFollowing.length})
+              </h2>
+              <ul>
+                {githubFollowing
+                  .slice(initialValue, lastValue)
+                  .map((following) => (
+                    <li key={following.id}>
+                      <a href={`/users/${following.login}`}>
+                        <img
+                          src={`https://github.com/${following.login}.png`}
+                          alt={`Foto de perfil do ${following}`}
+                        />
+                        <span>{following.login}</span>
+                      </a>
+                    </li>
+                  ))}
+              </ul>
+              <nav
                 style={{
-                  fontSize: "18px",
-                  paddingRight: "13px",
-                  pointerEvents: "none",
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                  paddingTop: "10px",
                 }}
               >
-                {page}
-              </a>
-              <a onClick={nextPage}>
-                {" "}
-                <FontAwesomeIcon icon={faAngleRight} size={"lg"} />
-              </a>
-            </div>
-          </nav>
-        </ProfileRelationsBoxWrapper>
-        </div>
-      </MainGrid>
-    </div>
-  );
-}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <a onClick={prevPage} style={{ paddingRight: "10px" }}>
+                    <FontAwesomeIcon icon={faAngleLeft} size={"lg"} />
+                  </a>
+                  <a
+                    style={{
+                      fontSize: "18px",
+                      paddingRight: "13px",
+                      pointerEvents: "none",
+                    }}
+                  >
+                    {page}
+                  </a>
+                  <a onClick={nextPage}>
+                    {" "}
+                    <FontAwesomeIcon icon={faAngleRight} size={"lg"} />
+                  </a>
+                </div>
+              </nav>
+            </ProfileRelationsBoxWrapper>
+          </div>
+        </MainGrid>
+      </div>
+    );
+  }
